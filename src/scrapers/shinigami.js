@@ -1,4 +1,5 @@
 const cheerio = require("cheerio");
+const axios = require("axios");
 const { getCache, setCache } = require("../config/cache");
 const { logger } = require("../config/logger");
 const puppeteer = require('puppeteer-extra');
@@ -258,7 +259,6 @@ async function fetchComicDetail(slug) {
 }
 
 async function fetchChapterContent(seriesSlug, chapterSlug) {
-    const url = `https://09.shinigami.asia/chapter/${chapterSlug}`; // Note: URL might not need seriesSlug
     const cacheKey = `shinigami:chapter:${chapterSlug}`;
 
     if (getCache(cacheKey)) {
@@ -266,44 +266,46 @@ async function fetchChapterContent(seriesSlug, chapterSlug) {
     }
 
     try {
-        const html = await fetchWithPuppeteer(url, 'button.max-w-800 img');
-        const $ = cheerio.load(html);
+        // Use Shinigami's internal API directly - no Puppeteer needed!
+        const apiUrl = `https://api.shngm.io/v1/chapter/detail/${chapterSlug}`;
+        logger.info(`Fetching chapter from API: ${apiUrl}`);
 
-        const images = [];
-        // Primary: images inside buttons with max-w-800 class
-        $('button.max-w-800 img').each((i, el) => {
-            const src = $(el).attr('src') || $(el).attr('data-src');
-            if (src && !src.includes('svg') && !src.includes('logo')) {
-                images.push(src);
-            }
+        const response = await axios.get(apiUrl, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Origin': 'https://09.shinigami.asia',
+                'Referer': 'https://09.shinigami.asia/'
+            },
+            timeout: 15000
         });
 
-        // Fallback: if primary selector fails, try broader approach
-        if (images.length === 0) {
-            $('img').each((i, el) => {
-                const src = $(el).attr('src') || $(el).attr('data-src');
-                if (src && (src.includes('chapter') || src.includes('shngm') || src.includes('dewakematian'))) {
-                    images.push(src);
-                }
-            });
+        const apiData = response.data;
+        if (apiData.retcode !== 0 || !apiData.data) {
+            throw new Error(`API returned error: ${apiData.message}`);
         }
 
-        // Unique images only
-        const uniqueImages = [...new Set(images)];
+        const d = apiData.data;
+        const baseUrl = d.base_url || 'https://assets.shngm.id';
+        const chapterPath = d.chapter?.path || '';
+        const imageFiles = d.chapter?.data || [];
+
+        // Construct full image URLs: base_url + path + filename
+        const images = imageFiles.map(filename => `${baseUrl}${chapterPath}${filename}`);
 
         const data = {
             chapterId: chapterSlug,
             seriesId: seriesSlug,
-            title: `Chapter ${chapterSlug}`,
-            images: uniqueImages,
-            nextChapter: null, // Need logic to find prev/next based on UI
-            previousChapter: null
+            title: d.chapter_title || `Chapter ${d.chapter_number || chapterSlug}`,
+            images: images,
+            nextChapter: d.next_chapter_id || null,
+            previousChapter: d.prev_chapter_id || null
         };
 
         setCache(cacheKey, data, cacheDuration);
+        logger.info(`Chapter ${chapterSlug} fetched via API: ${images.length} images`);
         return data;
     } catch (error) {
-        logger.error(`Shinigami chapter error: ${error.message}`);
+        logger.error(`Shinigami chapter API error: ${error.message}`);
         throw error;
     }
 }
