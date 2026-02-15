@@ -1,0 +1,15 @@
+=== OLD SELECTORS ===
+.komik_info: 0
+
+=== RELEVANT CLASSES ===
+  adsbygoogle
+  btn-refresh
+  icon-box
+  loading-gif
+  loading-text
+  notif-container
+  notif-desc
+  notif-title
+
+=== PAGE TITLE ===
+KomikCast

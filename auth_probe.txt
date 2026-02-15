@@ -1,0 +1,40 @@
+=== POST /auth/login [200] ===
+{
+  "error": "Invalid credentials"
+}
+
+=== POST /auth/signin [404] ===
+{
+  "message": "Cannot POST:/auth/signin"
+}
+
+=== POST /login [404] ===
+{
+  "message": "Cannot POST:/login"
+}
+
+=== POST /signin [404] ===
+{
+  "message": "Cannot POST:/signin"
+}
+
+=== POST /api/auth/login [404] ===
+{
+  "message": "Cannot POST:/api/auth/login"
+}
+
+=== POST /api/login [404] ===
+{
+  "message": "Cannot POST:/api/login"
+}
+
+=== GET /auth [404] ===
+{
+  "message": "Cannot GET:/auth"
+}
+
+=== GET /auth/login [404] ===
+{
+  "message": "Cannot GET:/auth/login"
+}
+

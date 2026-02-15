@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/Icon-1.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="KomikCast" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#000000" />
+
+    <style>
+      #initial-loader {
+        position: fixed;
+        inset: 0;
+        z-index: 99998;
+        background-color: #090c13;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.4s ease-out;
+      }
+      .loading-gif {
+        width: 150px;
+        height: auto;
+        margin-bottom: 1.5rem;
+        border-radius: 12px;
+      }
+      .loading-text {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        color: #94a3b8;
+        font-size: 0.875rem;
+        font-weight: 500;
+        letter-spacing: 0.05em;
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      #adblock-notification {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        background-color: rgba(9, 12, 19, 0.95);
+        backdrop-filter: blur(8px);
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        font-family: "Plus Jakarta Sans", sans-serif;
+        opacity: 0;
+        transition: opacity 0.3s ease-out;
+      }
+      #adblock-notification.show {
+        opacity: 1;
+      }
+
+      .notif-container {
+        width: 100%;
+        max-width: 420px;
+        background-color: #1e293b;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        border-radius: 16px;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+      .icon-box {
+        width: 64px;
+        height: 64px;
+        background-color: rgba(245, 158, 11, 0.15);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fbbf24;
+        margin-bottom: 1.5rem;
+      }
+      .notif-title {
+        color: white;
+        font-weight: 700;
+        font-size: 1.25rem;
+        margin: 0 0 0.5rem 0;
+      }
+      .notif-desc {
+        color: #94a3b8;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        margin: 0 0 2rem 0;
+      }
+      .btn-refresh {
+        width: 100%;
+        background-color: #d97706;
+        color: white;
+        padding: 0.875rem;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1rem;
+        border: none;
+        cursor: pointer;
+        transition:
+          transform 0.1s,
+          background-color 0.2s;
+      }
+      .btn-refresh:hover {
+        background-color: #b45309;
+      }
+
+      /* Keeps the detection element but won't trigger aggressively */
+      .adsbygoogle {
+        height: 1px;
+        width: 1px;
+        position: absolute;
+        top: -1000px;
+        left: -1000px;
+        opacity: 0;
+        pointer-events: none;
+      }
+    </style>
+
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin="anonymous"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+      crossorigin="anonymous"
+    />
+
+    <script type="348d0382e12bfa6786852020-text/javascript">
+      (function () {
+        // Anti-Tamper JSON
+        var iframe = document.createElement("iframe");
+        iframe.style.display = "none";
+        document.documentElement.appendChild(iframe);
+        var cleanJSONParse = iframe.contentWindow.JSON.parse;
+        document.documentElement.removeChild(iframe);
+        function lockAndRestoreJSON() {
+          if (
+            typeof window.JSON.parse !== "function" ||
+            window.JSON.parse !== cleanJSONParse
+          ) {
+            try {
+              Object.defineProperty(window.JSON, "parse", {
+                value: cleanJSONParse,
+                writable: false,
+                configurable: false,
+                enumerable: false,
+              });
+            } catch (e) {}
+          }
+        }
+        lockAndRestoreJSON();
+        setInterval(lockAndRestoreJSON, 50);
+      })();
+    </script>
+    <title>KomikCast</title>
+    <script type="348d0382e12bfa6786852020-module" crossorigin src="/assets/V-VMoEgV.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/DtftdNMe.css">
+  <link rel="manifest" href="/manifest.webmanifest"></head>
+
+  <body>
+    <div id="initial-loader">
+      <img src="/assets/480p.gif" alt="Loading..." class="loading-gif" />
+      <div class="loading-text">Loading KomikCast...</div>
+    </div>
+
+    <div id="root"></div>
+
+    <div class="adsbygoogle" id="ad-test-el">&nbsp;</div>
+
+    <div id="adblock-notification" role="alert">
+      <div class="notif-container">
+        <div class="icon-box">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            <path d="M12 8v4" />
+            <path d="M12 16h.01" />
+          </svg>
+        </div>
+        <h2 class="notif-title">Page Load Failed</h2>
+        <p class="notif-desc">
+          System detected <strong>AdBlock</strong> or network issues blocking
+          application files.<br /><br />
+          Please <strong>Refresh</strong> or disable AdBlock.
+        </p>
+        <button id="btn-reload-action" class="btn-refresh">Refresh Page</button>
+      </div>
+    </div>
+
+    <script type="348d0382e12bfa6786852020-text/javascript">
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.getRegistrations().then((registrations) => {
+            for (let registration of registrations) {
+              registration.update();
+            }
+          });
+        });
+      }
+    </script>
+
+    <script type="348d0382e12bfa6786852020-text/javascript">
+      (function () {
+        var loader = document.getElementById("initial-loader");
+        var adNotif = document.getElementById("adblock-notification");
+        var root = document.getElementById("root");
+        var btnReload = document.getElementById("btn-reload-action");
+        var whiteScreenTimer;
+
+        // Force Hard Reload on Click
+        if (btnReload) {
+          btnReload.onclick = function () {
+            try {
+              window.location.reload(true);
+            } catch (e) {
+              window.location.href = window.location.href;
+            }
+          };
+        }
+
+        function hideLoader() {
+          if (loader) {
+            loader.style.opacity = "0";
+            setTimeout(function () {
+              loader.style.display = "none";
+            }, 400);
+          }
+        }
+
+        function showAdBlockUI() {
+          // FINAL SAFETY CHECK: If app is actually loaded, abort error.
+          if (
+            root &&
+            (root.childElementCount > 0 || root.innerText.trim().length > 0)
+          ) {
+            return;
+          }
+          if (loader) loader.style.display = "none";
+          if (adNotif) {
+            adNotif.style.display = "flex";
+            setTimeout(function () {
+              adNotif.classList.add("show");
+            }, 10);
+          }
+        }
+
+        // --- SCENARIO 1: SUCCESS (App Loaded) ---
+        // As soon as React injects content, we consider it a success.
+        var observer = new MutationObserver(function (mutations) {
+          if (root.childElementCount > 0 || root.innerText.trim().length > 0) {
+            hideLoader();
+            observer.disconnect();
+            // CANCEL THE TIMEOUT immediately
+            clearTimeout(whiteScreenTimer);
+          }
+        });
+        observer.observe(root, { childList: true, subtree: true });
+
+        // --- SCENARIO 2: TIMEOUT (Only if App Fails) ---
+        // We wait 4 seconds. If React hasn't rendered by then, we assume blockage.
+        // We REMOVED the early CSS check because it was causing false positives.
+        whiteScreenTimer = setTimeout(function () {
+          if (
+            root &&
+            root.childElementCount === 0 &&
+            root.innerText.trim() === ""
+          ) {
+            console.error("[System] React failed to mount (Timeout).");
+            showAdBlockUI();
+            observer.disconnect();
+          }
+        }, 4000);
+      })();
+    </script>
+
+  <foreignObject><script src="/cdn-cgi/scripts/7d0fa10a/cloudflare-static/rocket-loader.min.js" data-cf-settings="348d0382e12bfa6786852020-|49" defer></script></foreignObject></body>
+</html>
