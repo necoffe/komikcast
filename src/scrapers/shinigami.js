@@ -266,17 +266,27 @@ async function fetchChapterContent(seriesSlug, chapterSlug) {
     }
 
     try {
-        const html = await fetchWithPuppeteer(url, 'div.flex.flex-col.items-center img');
+        const html = await fetchWithPuppeteer(url, 'button.max-w-800 img');
         const $ = cheerio.load(html);
 
         const images = [];
-        // Images are inside a button with class max-w-800...
-        $('.max-w-800.mx-auto.w-full.flex.flex-col.items-center.gap-0 img').each((i, el) => {
+        // Primary: images inside buttons with max-w-800 class
+        $('button.max-w-800 img').each((i, el) => {
             const src = $(el).attr('src') || $(el).attr('data-src');
             if (src && !src.includes('svg') && !src.includes('logo')) {
                 images.push(src);
             }
         });
+
+        // Fallback: if primary selector fails, try broader approach
+        if (images.length === 0) {
+            $('img').each((i, el) => {
+                const src = $(el).attr('src') || $(el).attr('data-src');
+                if (src && (src.includes('chapter') || src.includes('shngm') || src.includes('dewakematian'))) {
+                    images.push(src);
+                }
+            });
+        }
 
         // Unique images only
         const uniqueImages = [...new Set(images)];
