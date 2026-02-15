@@ -1,7 +1,7 @@
 ## Base URL
 
 ```
-https://komikaze-api.vercel.app/
+https://komikcast-8knb.vercel.app
 ```
 *(Ganti dengan URL Vercel project Anda setelah deploy)*
 
