@@ -3,7 +3,32 @@ const axios = require("axios");
 const { getCache, setCache } = require("../config/cache");
 const { logger } = require("../config/logger");
 
-const BASE_URL = "https://kiryuu03.com";
+const BASE_URL = "https://kiryuu.me";
+const puppeteer = require('puppeteer-extra');
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+
+// Fix for Vercel/Serverless deployment: Explicitly require evasions so they are bundled
+require('puppeteer-extra-plugin-user-preferences');
+require('puppeteer-extra-plugin-user-data-dir');
+require('puppeteer-extra-plugin-stealth/evasions/chrome.app');
+require('puppeteer-extra-plugin-stealth/evasions/chrome.csi');
+require('puppeteer-extra-plugin-stealth/evasions/chrome.loadTimes');
+require('puppeteer-extra-plugin-stealth/evasions/chrome.runtime');
+require('puppeteer-extra-plugin-stealth/evasions/defaultArgs');
+require('puppeteer-extra-plugin-stealth/evasions/iframe.contentWindow');
+require('puppeteer-extra-plugin-stealth/evasions/media.codecs');
+require('puppeteer-extra-plugin-stealth/evasions/navigator.hardwareConcurrency');
+require('puppeteer-extra-plugin-stealth/evasions/navigator.languages');
+require('puppeteer-extra-plugin-stealth/evasions/navigator.permissions');
+require('puppeteer-extra-plugin-stealth/evasions/navigator.plugins');
+require('puppeteer-extra-plugin-stealth/evasions/navigator.vendor');
+require('puppeteer-extra-plugin-stealth/evasions/navigator.webdriver');
+require('puppeteer-extra-plugin-stealth/evasions/sourceurl');
+require('puppeteer-extra-plugin-stealth/evasions/user-agent-override');
+require('puppeteer-extra-plugin-stealth/evasions/webgl.vendor');
+require('puppeteer-extra-plugin-stealth/evasions/window.outerdimensions');
+
+puppeteer.use(StealthPlugin());
 const cacheDuration = 15 * 60 * 1000; // 15 menit
 
 const defaultHeaders = {
@@ -25,7 +50,142 @@ async function fetchHTML(url, params = {}) {
         params,
         timeout: 30000,
     });
+
     return response.data;
+}
+
+async function getBrowser() {
+    const launchOptions = {
+        headless: "new",
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--no-first-run',
+            '--no-zygote',
+            '--single-process',
+            '--disable-gpu',
+            '--window-size=1920,1080'
+        ],
+        ignoreHTTPSErrors: true,
+        userDataDir: './session' // Persist session (cookies, etc)
+    };
+
+    if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_VERSION) {
+        const chromium = require('@sparticuz/chromium');
+        launchOptions.executablePath = await chromium.executablePath();
+        launchOptions.args = [...chromium.args, '--window-size=1920,1080'];
+        launchOptions.defaultViewport = chromium.defaultViewport;
+        launchOptions.headless = chromium.headless;
+        // On Vercel, use /tmp for userDataDir
+        launchOptions.userDataDir = '/tmp/session';
+    }
+
+    return await puppeteer.launch(launchOptions);
+}
+
+async function fetchWithPuppeteer(url) {
+    let browser = null;
+    try {
+        browser = await getBrowser();
+        const page = await browser.newPage();
+
+        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+        await page.setViewport({ width: 1280, height: 800 });
+
+        logger.info(`Puppeteer extracting: ${url}`);
+
+        try {
+            await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+        } catch (e) {
+            logger.warn(`Puppeteer goto error: ${e.message}`);
+            // Continue as sometimes goto throws but page is loaded or loading
+        }
+
+        // Wait for content to load (try to find images or title)
+        try {
+            // Wait for either main images or title, but exclude Cloudflare/404 titles
+            await page.waitForFunction(() => {
+                const h1 = document.querySelector('h1');
+                const h1Text = h1 ? h1.innerText.trim().toLowerCase() : '';
+                const unwanted = ['404 not found', 'just a moment...', 'attention required!', 'access denied'];
+                const isBadTitle = unwanted.some(s => h1Text.includes(s));
+
+                // On chapter page: main img. On list/home page: .listupd or .bs (manga card)
+                const hasImages = document.querySelectorAll('main img').length > 0;
+                const hasList = document.querySelectorAll('.listupd, .bs, .hentry').length > 0;
+                const hasGoodTitle = h1 && !isBadTitle;
+
+                return hasImages || hasList || hasGoodTitle;
+            }, { timeout: 30000 });
+        } catch (e) {
+            logger.warn('Content selector not found, trying to reload...');
+            try {
+                await page.reload({ waitUntil: 'domcontentloaded', timeout: 60000 });
+                await page.waitForFunction(() => {
+                    const h1 = document.querySelector('h1');
+                    const h1Text = h1 ? h1.innerText.trim().toLowerCase() : '';
+                    const unwanted = ['404 not found', 'just a moment...', 'attention required!', 'access denied'];
+                    const isBadTitle = unwanted.some(s => h1Text.includes(s));
+
+                    const hasImages = document.querySelectorAll('main img').length > 0;
+                    const hasList = document.querySelectorAll('.listupd, .bs, .hentry').length > 0;
+                    const hasGoodTitle = h1 && !isBadTitle;
+
+                    return hasImages || hasList || hasGoodTitle;
+                }, { timeout: 30000 });
+            } catch (retryError) {
+                logger.error(`Retry failed: ${retryError.message}`);
+            }
+        }
+
+        // Retry getting content if detached frame (page reloading)
+        let content = '';
+        for (let i = 0; i < 3; i++) {
+            try {
+                content = await page.content();
+                break;
+            } catch (e) {
+                if (e.message.includes('detached') || e.message.includes('destroyed') || e.message.includes('Execution context was destroyed')) {
+                    logger.warn(`Frame detached during content extraction, retrying ${i + 1}/3...`);
+                    await new Promise(r => setTimeout(r, 5000)); // Wait 5s
+
+                    // Try to get page again, maybe reload if needed?
+                    // No, just wait.
+                } else {
+                    throw e;
+                }
+            }
+        }
+
+        if (!content) {
+            logger.error("Failed to get content after retries. Taking screenshot...");
+            try {
+                await page.screenshot({ path: 'debug_screenshot.png', fullPage: true });
+            } catch (scrErr) {
+                logger.error("Failed to take screenshot: " + scrErr.message);
+            }
+            throw new Error("Frame detached/destroyed persistently. Cloudflare loop?");
+        }
+
+        return content;
+    } catch (error) {
+        // Try to take screenshot on general error if browser is open
+        if (browser) {
+            try {
+                // Must get pages to find the active one
+                const pages = await browser.pages();
+                if (pages.length > 0) {
+                    await pages[0].screenshot({ path: 'error_screenshot.png' });
+                }
+            } catch (scErr) { }
+        }
+        logger.error(`Puppeteer error for ${url}: ${error.message}`);
+        throw error;
+    } finally {
+        if (browser) await browser.close();
+    }
 }
 
 /**
@@ -264,7 +424,8 @@ async function fetchChapterContent(seriesSlug, chapterSlug) {
         const url = `${BASE_URL}/manga/${seriesSlug}/${chapterSlug}/`;
         logger.info(`Fetching chapter: ${url}`);
 
-        const html = await fetchHTML(url);
+        // Use Puppeteer for chapters to bypass Cloudflare
+        const html = await fetchWithPuppeteer(url);
         const $ = cheerio.load(html);
 
         // Judul chapter
@@ -390,6 +551,8 @@ async function fetchChapterContent(seriesSlug, chapterSlug) {
                     nextChapter = options[currentIdx + 1];
             }
         }
+
+
 
         const data = {
             chapterId: chapterSlug,
@@ -645,4 +808,5 @@ module.exports = {
     fetchGenres,
     fetchComicsByGenre,
     fetchPopularManga,
+    fetchWithPuppeteer // Export for testing
 };
