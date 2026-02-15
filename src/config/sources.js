@@ -8,13 +8,13 @@ const sources = {
     genresUrl: '/genres',
     popularMangaUrl: '/popular'
   },
-  shinigami: {
-    name: 'Shinigami',
-    baseUrl: 'https://09.shinigami.asia',
-    comicsListUrl: '/explore',
-    comicDetailBase: '/series/',
-    genresUrl: '/explore',
-    popularMangaUrl: '/explore?sort=popular'
+  kiryuu: {
+    name: 'Kiryuu',
+    baseUrl: 'https://kiryuu03.com',
+    comicsListUrl: '/',
+    comicDetailBase: '/manga/',
+    genresUrl: '/advanced-search/',
+    popularMangaUrl: '/'
   }
   // Tambahkan sumber lain di sini, misal:
   // komiku: { name: 'Komiku', baseUrl: 'https://komiku.id', comicsListUrl: '/manga/', ... }

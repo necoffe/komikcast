@@ -25,6 +25,7 @@ app.use('/api/chapters', require('./routes/chapters'));
 app.use('/api/genres', require('./routes/genres'));
 app.use('/api/popular-manga', require('./routes/popular-manga'));
 app.use('/api/search', require('./routes/search'));
+app.use('/', require('./routes/home'));
 
 // Penanganan error
 app.use((err, req, res, next) => {
