@@ -1,0 +1,47 @@
+{
+  "type": "data",
+  "nodes": [
+    null,
+    {
+      "type": "data",
+      "data": [
+        {
+          "recommendation": 1
+        },
+        {
+          "manhwa": 2,
+          "manhua": 5,
+          "manga": 6
+        },
+        {
+          "sort": 3,
+          "sort_order": 4
+        },
+        "latest",
+        "desc",
+        {
+          "sort": 3,
+          "sort_order": 4
+        },
+        {
+          "sort": 3,
+          "sort_order": 4
+        }
+      ],
+      "uses": {}
+    },
+    {
+      "type": "data",
+      "data": [
+        {
+          "isAuthenticated": 1
+        },
+        false
+      ],
+      "uses": {}
+    },
+    null,
+    null,
+    null
+  ]
+}

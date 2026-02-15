@@ -7,6 +7,14 @@ const sources = {
     comicDetailBase: '/series/',
     genresUrl: '/genres',
     popularMangaUrl: '/popular'
+  },
+  shinigami: {
+    name: 'Shinigami',
+    baseUrl: 'https://09.shinigami.asia',
+    comicsListUrl: '/explore',
+    comicDetailBase: '/series/',
+    genresUrl: '/explore',
+    popularMangaUrl: '/explore?sort=popular'
   }
   // Tambahkan sumber lain di sini, misal:
   // komiku: { name: 'Komiku', baseUrl: 'https://komiku.id', comicsListUrl: '/manga/', ... }

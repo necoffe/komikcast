@@ -5,3 +5,10 @@ error.log
 .vscode
 .qodo
 .vercel
+
+# Debug and Test Output
+test_output*.txt
+*_rendered.html
+*_chapter.html
+*_detail.html
+shinigami_api_response.json
