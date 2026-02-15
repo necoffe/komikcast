@@ -6,6 +6,8 @@ const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 
 // Fix for Vercel/Serverless deployment: Explicitly require evasions so they are bundled
 // This prevents "Cannot find module ... chrome.app" errors
+require('puppeteer-extra-plugin-user-preferences');
+require('puppeteer-extra-plugin-user-data-dir');
 require('puppeteer-extra-plugin-stealth/evasions/chrome.app');
 require('puppeteer-extra-plugin-stealth/evasions/chrome.csi');
 require('puppeteer-extra-plugin-stealth/evasions/chrome.loadTimes');
