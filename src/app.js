@@ -3,8 +3,7 @@ const express = require('express');
 const { logger } = require('./config/logger');
 const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
-const swaggerJsdoc = require('swagger-jsdoc');
-const swaggerOptions = require('./config/swagger');
+const swaggerDocument = require('./config/swagger.json');
 
 // Inisialisasi aplikasi Express
 const app = express();
@@ -23,8 +22,7 @@ app.use(cors({
 }));
 
 // Swagger Documentation
-const swaggerSpec = swaggerJsdoc(swaggerOptions);
-app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Mount rute
 app.use('/api/comics', require('./routes/comics'));

@@ -1,5 +1,14 @@
-# Komikaze API
+# Komikaze Scraper API
 
+## API Documentation
+The API documentation is available at `/` (root) when running the server.
+To update the Swagger documentation after changing routes or JSDoc comments:
+```bash
+node src/scripts/generate-swagger.js
+```
+This will regenerate `src/config/swagger.json`.
+
+## Installation
 API scraper untuk Komikcast dan Shinigami.
 
 ## Base URL

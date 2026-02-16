@@ -1,0 +1,459 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Komikaze API Documentation",
+    "version": "1.0.0",
+    "description": "API Documentation for Komikaze Scraper API",
+    "contact": {
+      "name": "Developer",
+      "url": "https://github.com/necoffe"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Development server"
+    },
+    {
+      "url": "https://zuruideso.vercel.app",
+      "description": "Production server"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "Comic": {
+        "type": "object",
+        "properties": {
+          "comicId": {
+            "type": "string",
+            "example": "solo-leveling"
+          },
+          "title": {
+            "type": "string",
+            "example": "Solo Leveling"
+          },
+          "link": {
+            "type": "string",
+            "example": "https://..."
+          },
+          "image": {
+            "type": "string",
+            "example": "https://..."
+          },
+          "rating": {
+            "type": "string",
+            "example": "9.8"
+          },
+          "type": {
+            "type": "string",
+            "example": "Manhwa"
+          },
+          "status": {
+            "type": "string",
+            "example": "Completed"
+          }
+        }
+      },
+      "DetailComic": {
+        "type": "object",
+        "properties": {
+          "comicId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "subTitle": {
+            "type": "string"
+          },
+          "coverImage": {
+            "type": "string"
+          },
+          "synopsis": {
+            "type": "string"
+          },
+          "chapters": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "chapterId": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "releaseTime": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/api/chapters/{seriesSlug}/{chapterSlug}": {
+      "get": {
+        "summary": "Get chapter images",
+        "tags": [
+          "Chapters"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "seriesSlug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The comic slug"
+          },
+          {
+            "in": "path",
+            "name": "chapterSlug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The chapter slug"
+          },
+          {
+            "in": "query",
+            "name": "source",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "komikcast",
+                "kiryuu"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The chapter images",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "chapter": {
+                          "type": "object",
+                          "properties": {
+                            "chapterId": {
+                              "type": "string"
+                            },
+                            "title": {
+                              "type": "string"
+                            },
+                            "images": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Chapter not found"
+          }
+        }
+      }
+    },
+    "/api/comics": {
+      "get": {
+        "summary": "Get a list of comics",
+        "tags": [
+          "Comics"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Page number"
+          },
+          {
+            "in": "query",
+            "name": "genres",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by genres (comma separated)"
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ongoing",
+                "completed",
+                "hiatus"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "type",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "manga",
+                "manhwa",
+                "manhua"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "orderby",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "update",
+                "title",
+                "latest"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "source",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "komikcast",
+                "kiryuu"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The list of comics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Comic"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/comics/{slug}": {
+      "get": {
+        "summary": "Get comic details",
+        "tags": [
+          "Comics"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The comic slug"
+          },
+          {
+            "in": "query",
+            "name": "source",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "komikcast",
+                "kiryuu"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The comic description by slug",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetailComic"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Comic not found"
+          }
+        }
+      }
+    },
+    "/api/genres": {
+      "get": {
+        "summary": "Get all genres",
+        "tags": [
+          "Genres"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "source",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "komikcast",
+                "kiryuu"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of genres"
+          }
+        }
+      }
+    },
+    "/api/genres/{genre}": {
+      "get": {
+        "summary": "Get comics by genre",
+        "tags": [
+          "Genres"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "genre",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "source",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "komikcast",
+                "kiryuu"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of comics in genre"
+          }
+        }
+      }
+    },
+    "/api/popular-manga": {
+      "get": {
+        "summary": "Get popular manga",
+        "tags": [
+          "Popular"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "source",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "komikcast",
+                "kiryuu"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of popular manga"
+          }
+        }
+      }
+    },
+    "/api/search": {
+      "get": {
+        "summary": "Search for comics",
+        "tags": [
+          "Search"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search term"
+          },
+          {
+            "in": "query",
+            "name": "source",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "komikcast",
+                "kiryuu"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search results"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Chapters",
+      "description": "Chapter content retrieval"
+    },
+    {
+      "name": "Comics",
+      "description": "Manga management and retrieval"
+    },
+    {
+      "name": "Genres",
+      "description": "Comic genres"
+    },
+    {
+      "name": "Popular",
+      "description": "Popular manga retrieval"
+    },
+    {
+      "name": "Search",
+      "description": "Search comics"
+    }
+  ]
+}
