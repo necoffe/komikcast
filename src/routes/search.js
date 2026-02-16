@@ -4,6 +4,35 @@ const { sources } = require('../config/sources');
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * tags:
+ *   name: Search
+ *   description: Search comics
+ */
+
+/**
+ * @swagger
+ * /api/search:
+ *   get:
+ *     summary: Search for comics
+ *     tags: [Search]
+ *     parameters:
+ *       - in: query
+ *         name: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Search term
+ *       - in: query
+ *         name: source
+ *         schema:
+ *           type: string
+ *           enum: [komikcast, kiryuu]
+ *     responses:
+ *       200:
+ *         description: Search results
+ */
 // Endpoint untuk pencarian komik
 router.get('/', [
   check('source').optional().isIn(Object.keys(sources)),

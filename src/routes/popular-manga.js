@@ -4,6 +4,29 @@ const { sources } = require('../config/sources');
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * tags:
+ *   name: Popular
+ *   description: Popular manga retrieval
+ */
+
+/**
+ * @swagger
+ * /api/popular-manga:
+ *   get:
+ *     summary: Get popular manga
+ *     tags: [Popular]
+ *     parameters:
+ *       - in: query
+ *         name: source
+ *         schema:
+ *           type: string
+ *           enum: [komikcast, kiryuu]
+ *     responses:
+ *       200:
+ *         description: List of popular manga
+ */
 // Endpoint untuk manga populer
 router.get('/', [
   check('source').optional().isIn(Object.keys(sources))

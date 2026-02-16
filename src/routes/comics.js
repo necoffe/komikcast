@@ -21,6 +21,60 @@ const validateComicDetail = [
   check('source').optional().isIn(Object.keys(sources))
 ];
 
+/**
+ * @swagger
+ * tags:
+ *   name: Comics
+ *   description: Manga management and retrieval
+ */
+
+/**
+ * @swagger
+ * /api/comics:
+ *   get:
+ *     summary: Get a list of comics
+ *     tags: [Comics]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         description: Page number
+ *       - in: query
+ *         name: genres
+ *         schema:
+ *           type: string
+ *         description: Filter by genres (comma separated)
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [ongoing, completed, hiatus]
+ *       - in: query
+ *         name: type
+ *         schema:
+ *           type: string
+ *           enum: [manga, manhwa, manhua]
+ *       - in: query
+ *         name: orderby
+ *         schema:
+ *           type: string
+ *           enum: [update, title, latest]
+ *       - in: query
+ *         name: source
+ *         schema:
+ *           type: string
+ *           enum: [komikcast, kiryuu]
+ *     responses:
+ *       200:
+ *         description: The list of comics
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Comic'
+ */
 // Endpoint untuk daftar komik
 router.get('/', validateComicsList, async (req, res) => {
   // Validasi input
@@ -46,6 +100,34 @@ router.get('/', validateComicsList, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/comics/{slug}:
+ *   get:
+ *     summary: Get comic details
+ *     tags: [Comics]
+ *     parameters:
+ *       - in: path
+ *         name: slug
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The comic slug
+ *       - in: query
+ *         name: source
+ *         schema:
+ *           type: string
+ *           enum: [komikcast, kiryuu]
+ *     responses:
+ *       200:
+ *         description: The comic description by slug
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DetailComic'
+ *       404:
+ *         description: Comic not found
+ */
 // Endpoint untuk detail komik
 router.get('/:slug', validateComicDetail, async (req, res) => {
   // Validasi input

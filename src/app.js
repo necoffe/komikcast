@@ -2,6 +2,9 @@ require('dotenv').config();
 const express = require('express');
 const { logger } = require('./config/logger');
 const cors = require('cors');
+const swaggerUi = require('swagger-ui-express');
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerOptions = require('./config/swagger');
 
 // Inisialisasi aplikasi Express
 const app = express();
@@ -19,13 +22,18 @@ app.use(cors({
     origin: '*',
 }));
 
+// Swagger Documentation
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 // Mount rute
 app.use('/api/comics', require('./routes/comics'));
 app.use('/api/chapters', require('./routes/chapters'));
 app.use('/api/genres', require('./routes/genres'));
 app.use('/api/popular-manga', require('./routes/popular-manga'));
 app.use('/api/search', require('./routes/search'));
-app.use('/', require('./routes/home'));
+app.use('/api/search', require('./routes/search'));
+// app.use('/', require('./routes/home')); // Replaced by Swagger UI
 
 // Penanganan error
 app.use((err, req, res, next) => {

@@ -12,6 +12,59 @@ const validateChapterContent = [
   check('source').optional().isIn(Object.keys(sources))
 ];
 
+/**
+ * @swagger
+ * tags:
+ *   name: Chapters
+ *   description: Chapter content retrieval
+ */
+
+/**
+ * @swagger
+ * /api/chapters/{seriesSlug}/{chapterSlug}:
+ *   get:
+ *     summary: Get chapter images
+ *     tags: [Chapters]
+ *     parameters:
+ *       - in: path
+ *         name: seriesSlug
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The comic slug
+ *       - in: path
+ *         name: chapterSlug
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The chapter slug
+ *       - in: query
+ *         name: source
+ *         schema:
+ *           type: string
+ *           enum: [komikcast, kiryuu]
+ *     responses:
+ *       200:
+ *         description: The chapter images
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     chapter:
+ *                       type: object
+ *                       properties:
+ *                         chapterId: { type: string }
+ *                         title: { type: string }
+ *                         images: 
+ *                           type: array
+ *                           items: { type: string }
+ *       404:
+ *         description: Chapter not found
+ */
 // Endpoint untuk konten chapter
 // Format: GET /api/chapters/:seriesSlug/:chapterSlug
 // Query params: ?source=kiryuu

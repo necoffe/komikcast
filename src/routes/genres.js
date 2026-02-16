@@ -4,6 +4,29 @@ const { sources } = require('../config/sources');
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * tags:
+ *   name: Genres
+ *   description: Comic genres
+ */
+
+/**
+ * @swagger
+ * /api/genres:
+ *   get:
+ *     summary: Get all genres
+ *     tags: [Genres]
+ *     parameters:
+ *       - in: query
+ *         name: source
+ *         schema:
+ *           type: string
+ *           enum: [komikcast, kiryuu]
+ *     responses:
+ *       200:
+ *         description: List of genres
+ */
 // Endpoint untuk daftar genre
 router.get('/', [
   check('source').optional().isIn(Object.keys(sources))
@@ -24,6 +47,31 @@ router.get('/', [
   }
 });
 
+/**
+ * @swagger
+ * /api/genres/{genre}:
+ *   get:
+ *     summary: Get comics by genre
+ *     tags: [Genres]
+ *     parameters:
+ *       - in: path
+ *         name: genre
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: source
+ *         schema:
+ *           type: string
+ *           enum: [komikcast, kiryuu]
+ *     responses:
+ *       200:
+ *         description: List of comics in genre
+ */
 // Endpoint untuk daftar komik berdasarkan genre
 router.get('/:genre', [
   check('source').optional().isIn(Object.keys(sources)),
