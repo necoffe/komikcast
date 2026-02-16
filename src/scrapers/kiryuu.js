@@ -424,8 +424,8 @@ async function fetchChapterContent(seriesSlug, chapterSlug) {
         const url = `${BASE_URL}/manga/${seriesSlug}/${chapterSlug}/`;
         logger.info(`Fetching chapter: ${url}`);
 
-        // Use Puppeteer for chapters to bypass Cloudflare
-        const html = await fetchWithPuppeteer(url);
+        // Use fetchHTML (axios) first for speed. Puppeteer is too slow for Vercel timeouts.
+        const html = await fetchHTML(url);
         const $ = cheerio.load(html);
 
         // Judul chapter
