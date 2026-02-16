@@ -51,12 +51,13 @@ const defaultHeaders = {
 /**
  * Fetch HTML dari URL dengan axios
  */
-async function fetchHTML(url, params = {}) {
+async function fetchHTML(url, params = {}, axiosConfig = {}) {
     logger.info(`Fetching: ${url}`);
     const response = await axios.get(url, {
         headers: defaultHeaders,
         params,
         timeout: 30000,
+        ...axiosConfig
     });
 
     return response.data;
@@ -447,7 +448,8 @@ async function fetchChapterContent(seriesSlug, chapterSlug) {
         // Try fetching with axios first for speed
         let html;
         try {
-            html = await fetchHTML(url);
+            // Set timeout shorter (5s) so we can fallback to Puppeteer quickly if blocked/slow
+            html = await fetchHTML(url, {}, { timeout: 5000 });
         } catch (e) {
             logger.warn(`Axios fetch failed for ${url} (${e.message}), falling back to Puppeteer...`);
             if (e.response && (e.response.status === 403 || e.response.status === 503)) {
