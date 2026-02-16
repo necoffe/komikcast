@@ -424,8 +424,19 @@ async function fetchChapterContent(seriesSlug, chapterSlug) {
         const url = `${BASE_URL}/manga/${seriesSlug}/${chapterSlug}/`;
         logger.info(`Fetching chapter: ${url}`);
 
-        // Use fetchHTML (axios) first for speed. Puppeteer is too slow for Vercel timeouts.
-        const html = await fetchHTML(url);
+        // Try fetching with axios first for speed
+        let html;
+        try {
+            html = await fetchHTML(url);
+        } catch (e) {
+            logger.warn(`Axios fetch failed for ${url} (${e.message}), falling back to Puppeteer...`);
+            if (e.response && (e.response.status === 403 || e.response.status === 503)) {
+                html = await fetchWithPuppeteer(url);
+            } else {
+                throw e;
+            }
+        }
+
         const $ = cheerio.load(html);
 
         // Judul chapter
