@@ -10,7 +10,7 @@ const sources = {
   },
   kiryuu: {
     name: 'Kiryuu',
-    baseUrl: 'https://kiryuu.me',
+    baseUrl: 'https://kiryuu03.com',
     comicsListUrl: '/',
     comicDetailBase: '/manga/',
     genresUrl: '/advanced-search/',

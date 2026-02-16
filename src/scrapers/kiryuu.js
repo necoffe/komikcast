@@ -3,7 +3,7 @@ const axios = require("axios");
 const { getCache, setCache } = require("../config/cache");
 const { logger } = require("../config/logger");
 
-const BASE_URL = "https://kiryuu.me";
+const BASE_URL = "https://kiryuu03.com";
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 
